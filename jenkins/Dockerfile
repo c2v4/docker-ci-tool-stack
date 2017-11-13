@@ -1,4 +1,4 @@
-FROM jenkins:2.19.4
+FROM jenkins:2.60.3
 
 USER root
 RUN apt-get update \
@@ -17,8 +17,11 @@ RUN mv docker/* /usr/bin/
 USER jenkins
 
 # installing specific list of plugins. see: https://github.com/jenkinsci/docker#preinstalling-plugins
+ENV CURL_RETRY_DELAY=5
+ENV CURL_RETRY=20
 COPY plugins.txt /var/jenkins_home/plugins.txt
-RUN /usr/local/bin/plugins.sh /var/jenkins_home/plugins.txt
+COPY install-plugins.sh /usr/local/bin/install-plugins.sh
+RUN /usr/local/bin/install-plugins.sh < /var/jenkins_home/plugins.txt
 
 # Adding default Jenkins Jobs
 COPY jobs/1-github-seed-job.xml /usr/share/jenkins/ref/jobs/1-github-seed-job/config.xml
